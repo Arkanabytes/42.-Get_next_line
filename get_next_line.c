@@ -12,84 +12,89 @@
 
 #include "get_next_line.h"
 
-static char			*ft_strjoin(const char *s1, const char *s2);
+ static char         *ft_strjoin(const char *s1, const char *s2);
+ 
+ static char         *ft_strdup(const char *str);
 
-static char			*ft_strdup(const char *str);
-
-static int			valid_line(char **stk, char **linea);
+// declaro validacion de lineas
+static valid_line(char **stack, char **linea);
+// declaro tres variables 
 {
-	char		*puntero;
-	char		*temporal;
-	int			iterador;
+	int		*ptr;
+	char	*tmp;
+	char	i;
+// declaro la funciones y las inicializo
+	i = 0;
+	ptr = *stack;
+// recorre el puntero indexado mostrara el salto de linea
+while(ptr[i]) != '\n')
+{
+	if(ptr[i] == '\0')
+	else 
+		i++;
+}
+tmp = &ptr[i];
+tmp = '\0';
 
-	iterador = 0;
-	puntero = *stk;
-	while (puntero[iterador] != '\n')
-	{
-		if (puntero[iterador] == '\0')
-			return (0);
-		else
-			iterador++;
-	}
-	temporal = &puntero[iterador];
-	*temporal = '\0';
-	*stk = ft_strdup(temporal + 1);
-	*linea = ft_strdup(puntero);
-	free(puntero);
-	puntero = NULL;
-	return (1);
+//funcion alocada en memoria por una copia de cadenas s1,
+//La copia devuelve un puntero, el puntero en subsecuencia usadp en
+// un argumento la funcion free que libera memoria.
+*stack = ft_strdup(tmp + 1);
+*line = ft_strdup(ptr);
+free(ptr);
+ptr = NULL;
+return (1);
 }
 
-static int			read_file(int fd, char *hp, char **stk, char **linea)
+static		lec_file(int fd, char *hp, char **stack, char **line)
 {
-	int				devuelve;
-	char			*puntero;
-
-	while ((devuelve = read(fd, hp, BUFF_SIZE)) > 0)
+	// declaro las variables
+	int		re;
+	char	*ptr;
+	//mediante un while recorro y la declaro lectura 
+	while ((re = read(fd,hp,BUFF_SIZE))) > 0)
 	{
-		hp[devuelve] = '\0';
-		if (*stk)
-		{
-			puntero = *stk;
-			*stk = ft_strjoin(puntero, hp);
-			free(puntero);
-			puntero = NULL;
-		}
-		else
-			*stk = ft_strdup(hp);
-		if (valid_line(stk, linea))
-			break ;
+	hp[re] = '\0'; // declaro el hip y lo itero y le doy con null
+	*stack = ft_strjoin(ptr, hp);
+	free(ptr); // libera la memoria que contiene el puntero
+	ptr = NULL; // puntero lo declaro como nulo
 	}
-	if (devuelve > 0)
+	else
+		*stack = ft_strdup(hp);
+		if (re > 0)
 		return (1);
-	return (devuelve);
+		return (re);
+ 	}
+
+// funcion gnl
+int		gnl(int fd, char **linea)
+{
+	//declaro tres variables
+	static char *stack[DESCRIPTORS];
+	char		*hp;
+	int			re;
+	int 		i;
 }
 
-int					get_next_line(int fd, char **linea)
-{
-	static char		*stk[DESCRIPTORS];
-	char			*hp;
-	int				devuelve;
-	int				iterador;
-
-	iterador = 0;
-	if (!line || fd < 0 || fd >= DESCRIPTORS || (read(fd, stk[fd], 0) < 0) \
-			|| !(hp = (char *)malloc(sizeof(char) * BUFF_SIZE + 1)))
-		return (-1);
-	if (stk[fd])
-		if (valid_line(&stk[fd], linea))
-			return (1);
-	while (iterador < BUFF_SIZE)
-		hp[iterador++] = '\0';
-	devuelve = read_file(fd, hp, &stk[fd], linea);
+i = 0;
+//Condicion de no linea no fd es menor a cero
+if (!line || fd < 0 || fd >= DESCRIPTORS || (read(fd, stack[fd], 0) < 0) \ 
+|| ! (hp = (char *)malloc(sizeof(char)* BUFF_SIZE + 1)))
+return (-1);
+if (stack[fd])
+	if(valid_line(&stack[fd], linea))
+	return (1);
+while (i < BUFF_SIZE)
+		hp[i++] = '\0';
+	re = read_file(fd, hp, &stack[fd], linea);
 	free(hp);
-	if (devuelve != 0 || stk[fd] == NULL || stk[fd][0] == '\0')
+	if (re != 0 || stack[fd] == NULL || stack[fd][0] == '\0')
 	{
-		if (devuelve == 0 && *linea)
+		if (re == 0 && *linea)
 			*linea = NULL;
-		return (devuelve);
+		return (re);
 	}
-	*linea = stk[fd];
-	stk[fd] = NULL;
+	*linea = stack[fd];
+	stack[fd] = NULL;
 	return (1);
 }
