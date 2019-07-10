@@ -6,56 +6,128 @@
 /*   By: copinto- <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/06/11 15:55:17 by copinto-          #+#    #+#             */
-/*   Updated: 2019/06/14 19:26:01 by copinto-         ###   ########.fr       */
+/*   Updated: 2019/07/09 23:47:10 by copinto-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <fcntl.h>
 #include "get_next_line.h"
+#include <fcntl.h>
+#include <stdio.h>
+#include <string.h>
 
-static void		ft_putendl(char *str)
+int main(int argc, char **argv)
 {
-	int			itr;
+	int		fd;
+	int		ret;
+	char	*ptr;
+	int		line;
+	int		*lines;
+	int		i;
+	int		j;
+	int 	*fds;
+	int		n;
+	int		f;
 
-	itr = 0;
-	while (str[itr])
+	if (argc == 1)
 	{
-		write(1, &str[itr], 1);
-		itr++;
+		line = 0;
+		while ((ret = get_next_line(0, &ptr)) > 0)
+		{
+			printf("[Stdin] [FD:0] [RetVal:%d] [Line#%d] $%s\n", ret, ++line, ptr);
+			ft_strdel(&ptr);
+		}
+		printf("[Stdin] [FD:0] [RetVal:%d] [Line#%d] %s", ret, ++line, ptr);
+		if (ret == -1)
+			printf(" ERROR\n");
+		else if (ret == 0)
+			printf(" END OF STDIN\n");
+		close(0);
 	}
-	write(1,"\n", 1);
-}
-
-int				main(int ac, char **av)
-{
-	int			fd;
-	char		*linea;
-
-	if (ac == 1)
-		fd = 0;
-	else if (ac == 2)
-		fd = open(av[1], O_RDONLY);
-	else
-		return (2);
-	while (gext_next_line(fd, &line) == 1)
+	else if (!strcmp(argv[argc - 1], "mix"))
 	{
-		ft_putendl(linea);
-		free(linea);
+		 printf("[INFO] Enter mix number\n");
+		return (-1);
 	}
-	if (ac == 2)
-		close(fd);
+	else if (!strcmp(argv[argc - 2], "mix"))
+	{
+		fds = (int *)malloc(sizeof(int) * (argc - 3));
+		i = 1;
+		j = 0;
+		n = argc - 3;
+		while (n--)
+		{
+			fd = open(argv[i], O_RDONLY, 0);
+			fds[j] = fd;
+			++i;
+			++j;
+		}
+		j = 0;
+		n = argc - 3;
+		f = n;
+		lines = (int *)malloc(sizeof(int) * n);
+		while (n--)
+			lines[j++] = 0;
+		while (f)
+		{
+			j = 0;
+			while (j < argc - 3)
+			{
+				n = atoi(argv[argc - 1]);
+				while (n-- && fds[j] != -2)
+				{
+					ret = get_next_line(fds[j], &ptr);
+					if (ret == 0)
+					{
+						printf("[%s] [FD:%d] [RetVal:%d] [Line#%d] %s", \
+						*(argv + j + 1), fds[j], ret, ++lines[j], ptr);
+						printf(" EOF\n");
+						close(fds[j]);
+						fds[j] = -2;
+						--f;
+					}
+					else if (ret == -1)
+					{
+						printf("[%s] [FD:%d] [RetVal:%d] [Line#%d] %s", \
+						*(argv + j + 1), fds[j], ret, ++lines [j], ptr );
+						printf(" ERROR\n");
+						close(fds[j]);
+						fds[j] = -2;
+						--f;
+					}
+					else if (ret == 1)
+					{
+						printf("[%s] [FD:%d] [RetVal:%d] [Line#%d] $%s\n", \
+							*(argv + j + 1), fds[j], ret, ++lines[j], ptr);
+						ft_strdel(&ptr);
+					}
+				}
+				++j;
+			}
+		}
+		free (fds);
+		free (lines);
+	}
+	else if (argc > 1)
+	{
+		while (--argc)
+		{
+			++argv;
+			line = 0;
+			fd = open(*argv, O_RDONLY, 0);
+			while ((ret = get_next_line(fd, &ptr)) > 0)
+			{
+				printf("[%s] [FD:%d] [RetVal:%d] [Line#%d] $%s\n", *argv, fd, ret, ++line, ptr);
+				ft_strdel(&ptr);
+			}
+			printf("[%s] [FD:%d] [RetVal:%d] [Line#%d] %s", *argv, fd, ret, ++line, ptr);
+			if (ret == -1)
+				printf(" ERROR\n");
+			else if (ret == 0)
+				printf(" EOF\n");
+			close(fd);
+			if (argc != 1)
+				printf("\n");
+		}
+	}
 	return (0);
 }
-/*
-{
-//	int get_next_line(const int fd, char **line)
- int fd;
- 
-	fd = open("pepito.txt",O_RDONLY);
-	printf("El FD asignado por el sistema es es:%d\n",fd);
-		return (0);
-}
-*/
