@@ -6,49 +6,51 @@
 /*   By: copinto- <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/06/11 15:55:17 by copinto-          #+#    #+#             */
-/*   Updated: 2019/06/14 19:26:01 by copinto-         ###   ########.fr       */
+/*   Updated: 2019/07/01 02:36:13 by copinto-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
-
 #include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h>
 #include <fcntl.h>
+#include <unistd.h>
 #include "get_next_line.h"
+#include <stdio.h>
 
-static void		ft_putendl(char *str)
+static void	ft_putendl(char *str)
 {
-	int			itr;
+	int i;
 
-	itr = 0;
-	while (str[itr])
+	i = 0;
+	while (str[i])
 	{
-		write(1, &str[itr], 1);
-		itr++;
+		write(1, &str[i], 1);
+		i++;
 	}
-	write(1,"\n", 1);
+	write(1, "\n", 1);
 }
 
-int				main(int ac, char **av)
+int			main(int argc, char **argv)
 {
-	int			fd;
-	char		*linea;
-
-	if (ac == 1)
+	int fd;
+	char *line;
+	
+	if (argc == 1)
 		fd = 0;
-	else if (ac == 2)
-		fd = open(av[1], O_RDONLY);
-	else
+	else if (argc == 2)
+		fd = open(argv[1], O_RDONLY);
+	else 
 		return (2);
-	while (gext_next_line(fd, &line) == 1)
+	while (get_next_line(fd, &line) == 1)
 	{
-		ft_putendl(linea);
-		free(linea);
+		ft_putendl(line);
+		free(line);
 	}
-	if (ac == 2)
+	if 	(argc == 2)
 		close(fd);
 	return (0);
 }
+
+
 /*
 {
 //	int get_next_line(const int fd, char **line)
