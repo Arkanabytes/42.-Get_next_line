@@ -6,90 +6,60 @@
 /*   By: copinto- <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/06/14 23:47:17 by copinto-          #+#    #+#             */
-/*   Updated: 2019/06/15 00:07:46 by copinto-         ###   ########.fr       */
+/*   Updated: 2019/07/12 13:23:50 by copinto-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
 
-static char			*ft_strjoin(const char *s1, const char *s2);
-
-static char			*ft_strdup(const char *str);
-
-static int			valid_line(char **stk, char **linea);
+int					v_line(int fd, char **stack, char **line)
 {
-	char		*puntero;
-	char		*temporal;
-	int			iterador;
+	char			*j;
+	int				i;
 
-	iterador = 0;
-	puntero = *stk;
-	while (puntero[iterador] != '\n')
+	i = 0;
+	while (stack[fd][i] != '\n' && stack[fd][i] != '\0')
+		i++;
+	if (stack[fd][i] == '\n')
 	{
-		if (puntero[iterador] == '\0')
-			return (0);
-		else
-			iterador++;
+		*line = ft_strsub(stack[fd], 0, i);
+		j = ft_strdup(&(stack[fd][++i]));
+		ft_strdel(&stack[fd]);
+		stack[fd] = j;
 	}
-	temporal = &puntero[iterador];
-	*temporal = '\0';
-	*stk = ft_strdup(temporal + 1);
-	*linea = ft_strdup(puntero);
-	free(puntero);
-	puntero = NULL;
+	else if (stack[fd][i] == '\0')
+	{
+		*line = ft_strdup(stack[fd]);
+		ft_strdel(&stack[fd]);
+	}
 	return (1);
 }
 
-static int			read_file(int fd, char *hp, char **stk, char **linea)
+int					get_next_line(const int fd, char **line)
 {
-	int				devuelve;
-	char			*puntero;
+	static char		*file[FD_MAX];
+	char			buff[BUFF_SIZE + 1];
+	char			*j;
+	int				regresa;
 
-	while ((devuelve = read(fd, hp, BUFF_SIZE)) > 0)
+	if (fd < 0 || fd >= FD_MAX || line == NULL)
+		return (-1);
+	while ((regresa = read(fd, buff, BUFF_SIZE)) > 0)
 	{
-		hp[devuelve] = '\0';
-		if (*stk)
-		{
-			puntero = *stk;
-			*stk = ft_strjoin(puntero, hp);
-			free(puntero);
-			puntero = NULL;
-		}
-		else
-			*stk = ft_strdup(hp);
-		if (valid_line(stk, linea))
+		buff[regresa] = '\0';
+		file[fd] == NULL ? file[fd] = ft_strnew(1) : 0;
+		j = ft_strjoin(file[fd], buff);
+		free(file[fd]);
+		file[fd] = j;
+		if (ft_strchr(file[fd], '\n'))
 			break ;
 	}
-	if (devuelve > 0)
-		return (1);
-	return (devuelve);
-}
-
-int					get_next_line(int fd, char **linea)
-{
-	static char		*stk[DESCRIPTORS];
-	char			*hp;
-	int				devuelve;
-	int				iterador;
-
-	iterador = 0;
-	if (!line || fd < 0 || fd >= DESCRIPTORS || (read(fd, stk[fd], 0) < 0) \
-			|| !(hp = (char *)malloc(sizeof(char) * BUFF_SIZE + 1)))
+	if (regresa < 0)
 		return (-1);
-	if (stk[fd])
-		if (valid_line(&stk[fd], linea))
-			return (1);
-	while (iterador < BUFF_SIZE)
-		hp[iterador++] = '\0';
-	devuelve = read_file(fd, hp, &stk[fd], linea);
-	free(hp);
-	if (devuelve != 0 || stk[fd] == NULL || stk[fd][0] == '\0')
+	else if (regresa == 0 && (file[fd] == NULL || *file[fd] == '\0'))
 	{
-		if (devuelve == 0 && *linea)
-			*linea = NULL;
-		return (devuelve);
+		ft_strdel(&file[fd]);
+		return (0);
 	}
-	*linea = stk[fd];
-	stk[fd] = NULL;
-	return (1);
+	return (v_line(fd, file, line));
 }
