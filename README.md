@@ -10,9 +10,8 @@
 [![Contributors][contributors-shield]][contributors-url]
 [![MIT License][license-shield]][license-url]
 [![LinkedIn][linkedin-shield]][linkedin-url]
--->
-
 [linkedin-url]: https://linkedin.com/in/consuelo-alejandra-pinto-toro/
+-->
 
 # Get_Next_Line
 
