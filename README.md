@@ -1,4 +1,3 @@
-[![LinkedIn][linkedin-shield]][linkedin-url] 
 
 # Get_Next_Line
 
