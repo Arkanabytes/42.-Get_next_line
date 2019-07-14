@@ -1,5 +1,4 @@
-
-# Get_Next_Line
+![](gnl.jpg)
 
 ## Objectives ##
 
