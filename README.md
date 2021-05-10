@@ -45,3 +45,11 @@ Your respect of the Norm will improve the rigor of your programming. We also sus
 `0` | No read, end of file.
 
 `-1` | Error.
+
+
+
+
+## Authors
+
+
+* [*Consuelo Alejandra Pinto Toro*](https://github.com/hatejandra)
